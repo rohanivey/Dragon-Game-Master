@@ -1,5 +1,7 @@
 package com.rohan.dragonGame;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
@@ -56,6 +58,14 @@ public class PlatformLevel extends Level {
 			break;
 		case Moving:
 			drawMap();
+			
+			ArrayList<DustCloud> tempCloudList = player.getDustList();
+			
+			for(DustCloud d : tempCloudList)
+			{	sb.begin();
+				sb.draw(d.getTexture(), d.getX(), d.getY(),8,8);
+				sb.end();
+			}
 			break;
 		case Trading:
 			break;

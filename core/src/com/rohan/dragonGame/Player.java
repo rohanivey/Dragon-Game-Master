@@ -239,6 +239,8 @@ public class Player {
 		readItems();
 	}
 
+	public ArrayList<DustCloud> getDustList(){return null;}
+	
 	public void readStats() {
 
 		Element root;

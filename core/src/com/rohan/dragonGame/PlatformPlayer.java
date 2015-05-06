@@ -1,5 +1,8 @@
 package com.rohan.dragonGame;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.math.Intersector;
@@ -13,6 +16,7 @@ public class PlatformPlayer extends Player {
 	private float horVelocity = 0f;
 	private float friction = 1f;
 	private floorState fs = floorState.inAir;
+	private ArrayList<DustCloud> dustList = new ArrayList<DustCloud>();
 
 	enum floorState {
 		onGround, inAir, onLadder
@@ -32,6 +36,7 @@ public class PlatformPlayer extends Player {
 		checkCollision();
 		screenEdging();
 		checkLevelChange();
+		updateLists();
 
 		switch (fs) {
 		case onGround:
@@ -48,6 +53,21 @@ public class PlatformPlayer extends Player {
 
 	}
 
+	public void updateLists()
+	{
+		Iterator<DustCloud> dl = dustList.iterator();
+		while(dl.hasNext())
+		{
+			DustCloud  dc = dl.next();
+			dc.update();
+			if(dc.getTimer() <= 0)
+			{
+				dl.remove();
+				System.out.println("Removed dustcloud from dust list");
+			}
+		}
+	}
+	
 	@Override
 	public void handleCollision() {
 		previousLocation = tempLocation;
@@ -101,13 +121,15 @@ public class PlatformPlayer extends Player {
 		// I KNOW IT AIN'T PHYSICS KOSHER
 		switch (inputDirection) {
 		case Left:
-			if (horVelocity > speed * -4) {
+			if (horVelocity > speed * -4 && fs == floorState.onGround) {
 				horVelocity -= speed / 2;
+				dustList.add(new DustCloud("Right", location.x, location.y));
 			}
 			break;
 		case Right:
-			if (horVelocity < speed * 4) {
+			if (horVelocity < speed * 4 && fs == floorState.onGround) {
 				horVelocity += speed / 2;
+				dustList.add(new DustCloud("Left", location.x, location.y));
 			}
 			break;
 		}
@@ -130,6 +152,7 @@ public class PlatformPlayer extends Player {
 			break;
 		case Right:
 			applySpeed(inputDirection);
+
 			break;
 		}
 
@@ -214,6 +237,11 @@ public class PlatformPlayer extends Player {
 
 	}
 
+	public ArrayList<DustCloud> getDustList()
+	{
+		return dustList;
+	}
+	
 	@Override
 	public void handleInput() {
 
@@ -286,6 +314,14 @@ public class PlatformPlayer extends Player {
 				// If the player's collision box is greater than the y location
 				// of the collider box, the player is above it
 				// and therefore must be on the ground
+				for(float i = vertVelocity /2; i > 0; i --)
+				{
+					if(i % 2 == 0)
+					{
+						dustList.add(new DustCloud("Right", location.x, location.y));
+					}
+					dustList.add(new DustCloud("Left", location.x, location.y));
+				}
 				vertVelocity = 0;
 				if (tempCollision.y > r.y) {
 					// Player has hit the ground
